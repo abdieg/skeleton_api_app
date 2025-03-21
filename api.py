@@ -1,5 +1,5 @@
 from typing import Optional, Literal
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, Request
 from faker import Faker
 import random
 import uvicorn
@@ -7,22 +7,30 @@ import uvicorn
 app = FastAPI()
 fake = Faker()
 
+# Explicitly allowed query params
+ALLOWED_QUERY_PARAMS = {"is_employee"}
+
 
 @app.get("/person")
-def get_person(
-    is_employee: Optional[Literal["true", "false"]] = Query(
-        default=None,
-        description="Indicates if person is an employee. Accepts only 'true' or 'false'.",
-    )
+async def get_person(
+        request: Request,
+        is_employee: Optional[Literal["true", "false"]] = Query(
+            default=None,
+            description="Indicates if person is an employee. Accepts only 'true' or 'false'.",
+        )
 ):
     """Return fake person data"""
 
-    # Convert string to boolean
-    if is_employee is not None:
-        is_employee = is_employee == "true"
+    # Check for unexpected query parameters
+    unexpected_params = set(request.query_params.keys()) - ALLOWED_QUERY_PARAMS
+    if unexpected_params:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unexpected query parameter(s): {', '.join(unexpected_params)}"
+        )
 
-    # if isinstance(is_employee, str):
-    #     raise HTTPException(status_code=400, detail="Invalid 'is_employee' parameter. Use 'true' or 'false'.")
+    # Convert string to boolean
+    is_employee = is_employee == "true" if is_employee is not None else random.choice([True, False])
 
     return {
         "name": fake.name(),
@@ -31,7 +39,7 @@ def get_person(
         "phone": fake.phone_number(),
         "address": fake.address(),
         "zip_code": fake.zipcode(),
-        "is_employee": is_employee if is_employee is not None else random.choice([True, False]),
+        "is_employee": is_employee,
         "salary": round(random.uniform(15000, 120000), 2),
         "company": fake.company(),
         "equipment": [
