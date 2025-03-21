@@ -1,6 +1,5 @@
-from typing import Optional
-
-from fastapi import FastAPI
+from typing import Optional, Literal
+from fastapi import FastAPI, Query, HTTPException
 from faker import Faker
 import random
 import uvicorn
@@ -11,9 +10,20 @@ fake = Faker()
 
 @app.get("/person")
 def get_person(
-    is_employee: Optional[bool] = None,
+    is_employee: Optional[Literal["true", "false"]] = Query(
+        default=None,
+        description="Indicates if person is an employee. Accepts only 'true' or 'false'.",
+    )
 ):
     """Return fake person data"""
+
+    # Convert string to boolean
+    if is_employee is not None:
+        is_employee = is_employee == "true"
+
+    # if isinstance(is_employee, str):
+    #     raise HTTPException(status_code=400, detail="Invalid 'is_employee' parameter. Use 'true' or 'false'.")
+
     return {
         "name": fake.name(),
         "dob": fake.date_of_birth(minimum_age=18, maximum_age=90).strftime("%Y-%m-%d"),
