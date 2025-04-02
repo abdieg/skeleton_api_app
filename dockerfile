@@ -15,4 +15,5 @@ EXPOSE 10200
 
 # Command to run the application
 # Entrypoint uses shell form to allow variable expansion
-CMD sh -c "uvicorn api:app --host=${SKELETON_API_HOST:-0.0.0.0} --port=${SKELETON_API_PORT:-10200}"
+# Use 0.0.0.0 so that uvicorn binds all interfaces inside the container
+CMD sh -c "uvicorn api:app --host=0.0.0.0 --port=${SKELETON_API_PORT:-10200}"
