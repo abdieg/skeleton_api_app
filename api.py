@@ -54,4 +54,4 @@ async def get_person(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=11000)
+    uvicorn.run(app, host="127.0.0.1", port=10200)
