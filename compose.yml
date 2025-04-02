@@ -1,0 +1,14 @@
+services:
+  fastapi_app:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "${SKELETON_API_HOST}:${SKELETON_API_PORT}:10200"
+    networks:
+      - skeleton_api
+    restart: unless-stopped
+
+networks:
+  skeleton_api:
+    driver: bridge
