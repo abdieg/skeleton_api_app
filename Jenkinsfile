@@ -11,6 +11,28 @@ pipeline {
 			}
 		}
 
+		stage('Check for changes') {
+			steps {
+				script {
+					def changes = sh(script: 'git log -1 --pretty=format:"%h"', returnStdout: true).trim()
+					def buildTriggerFile = '.last_build_commit'
+
+					if (fileExists(buildTriggerFile)) {
+						def lastBuildCommit = readFile(buildTriggerFile).trim()
+						if (changes == lastBuildCommit) {
+							echo "No changes since last build. Skipping deployment."
+							currentBuild.result = 'SUCCESS'
+							// Stop further stages
+							error("Pipeline aborted: no changes detected.")
+						}
+					}
+
+					// Save latest commit hash for next run
+					writeFile file: buildTriggerFile, text: changes
+				}
+			}
+		}
+
 		stage('Prepare environment variables') {
             steps {
                 withCredentials([
