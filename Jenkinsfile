@@ -66,5 +66,14 @@ pipeline {
 			}
 		}
 
+		stage('Deploy completed - Set flag') {
+            steps {
+                script {
+                    writeFile file: '/tmp/skeleton_api_status.flag', text: 'SUCCESS'
+                    echo 'Wrote build completion flag.'
+                }
+            }
+        }
+
 	}
 }
