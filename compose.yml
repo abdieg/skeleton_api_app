@@ -11,4 +11,4 @@ services:
 
 networks:
   skeleton_api:
-    driver: bridge
+    external: true
