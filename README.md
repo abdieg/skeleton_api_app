@@ -13,3 +13,17 @@
 1. Enable VENV
 2. Go to root of the project
 3. Directly execute "python api.py" command
+
+## Jenkins and CI/CD implications
+- Since we are using Docker, both APP and TESTING parts must belong to the same network. This was ensured using:
+```
+echo "Ensuring external Docker network '${PROJECT_NAME}' exists..."
+docker network inspect "$PROJECT_NAME" >/dev/null 2>&1 || \
+    docker network create --driver bridge "$PROJECT_NAME"
+```
+- Jenkins credentials were used to address environment variables:
+```
+skeleton_api_host
+skeleton_api_port
+```
+- Due to project being inside a VPN, the HOST will be the IP address of the VPN
